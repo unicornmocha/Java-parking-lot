@@ -36,23 +36,27 @@ public class Floor {
 
     public Spot checkIn(Vehicle vehicle, HashSet<Spot> spotHashSet) {
 //        check for empty-return null, remove the spot from set, checkin vehicle in that spot, return the spot
-        if (spotHashSet == null) {
+        if (spotHashSet.isEmpty()) {
            return null;
         }
-        for (Spot spot : spotHashSet) {
+        Spot spot = spotHashSet.iterator().next();
+        try {
             spot.checkIn(vehicle);
             spotHashSet.remove(spot);
-            return spot;
+        } catch(Exception e) {
+            return null;
         }
+        return spot;
     }
+
     public Spot searchVacancy(Vehicle vehicle) {
 //        if vehicle is car, how do we search through regular spots and then search through large spots?
-        VehicleClass vehicleClass = vehicle.readVehicleClass();
         List<SpotCategory> spotCategories = List.of(SpotCategory.values());
+        Spot vacantSpot = null;
         for (SpotCategory spotCategory : spotCategories) {
            if (spotCategory.getAllowedVehicles().contains(vehicle.readVehicleClass())) {
 
-               Spot vacantSpot = switch (spotCategory) {
+               vacantSpot = switch (spotCategory) {
                    case SpotCategory.RESERVED -> checkIn(vehicle, reservedSpots);
                    case SpotCategory.REGULAR -> checkIn(vehicle, regularSpots);
                    case SpotCategory.COMPACT -> checkIn(vehicle, compactSpots);
@@ -61,10 +65,16 @@ public class Floor {
                if (vacantSpot == null) {
                    throw new IllegalStateException("No vacant spots available");
                };
-               return vacantSpot;
+               break;
             }
         }
-//        return null; suggested by Java
+        return vacantSpot;
     }
-//    public checkOut
+    public void checkOut(Vehicle vehicle, Spot spot) {
+        try {
+            spot.checkOut(vehicle.readVehicleNumber());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -56,8 +56,14 @@ public class Spot {
         return this.spotCategory.getRate() * Duration.between(this.checkinTime, LocalTime.now()).toHours();
     }
 
-    public void checkOut() {
+    public void checkOut(String vehicleNumber) {
 //        include check to insure its occupied
+        if (!this.isOccupied) {
+            throw new IllegalStateException("Spot is not occupied");
+        }
+        if (!vehicleNumber.equals(this.vehicleNumber)) {
+            throw new IllegalArgumentException("Vehicle number doesn't match");
+        }
         this.isOccupied = false;
         this.vehicleNumber = "";
         this.checkinTime = null;
